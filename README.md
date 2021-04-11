@@ -1,10 +1,8 @@
 # IPC
 A simple program which allows you to interact with a web-server and your application
 
-**Usage:**
+## Sync
 ```py
-## Sync version
-
 ## In your application
 from IPC import AppClient
 
@@ -34,8 +32,9 @@ def index():
     return client.fetch('my_event')   ## Returns the data which was sent from your application
 ```
 
-If you require an async version
-```
+## Async
+
+```py
 from IPC import AIO_AppClient
 
 client = AIO_AppClient('host', port, 'secret-key')
@@ -53,3 +52,7 @@ async def my_event(*args, **kwargs):
 
 ## Your web app would be the same as before except with async and await infront of each function
 ```
+
+## Using Discord.py?
+For your bot it is recomended you use the async module
+And for your web app you could use any of the clients
