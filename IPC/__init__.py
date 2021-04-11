@@ -1,4 +1,4 @@
-from .aio import (
+from .async import (
     AIO_AppClient
     AIO_WebClient
 )
