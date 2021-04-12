@@ -8,12 +8,6 @@ from IPC import AppClient
 
 client = AppClient('host', port, 'secret-key')
 
-client.dispatch(
-    "event-type",
-    "content-type",
-    content
-)
-
 ## If your using a function
 @client.on_call('event-name')     ## If no name for the even is supplied the function's name becomes the event name
 def my_event(*args, **kwargs):
@@ -30,6 +24,24 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     return client.fetch('my_event')   ## Returns the data which was sent from your application
+```
+
+## Need to send files?
+```py
+from IPC import File, AppClient
+
+client = AppClient('host', port, 'secret-key')
+
+@client.on_call('event-name')  
+def my_event(*args, **kwargs):
+    return File('./path/to/file', 'filename.txt')
+    
+    ## What if i dont have the file saved?
+    return File(raw=bytes, filename='filename.txt')
+    
+    ## Base format is
+    ## `filepath, filename`
+    ## If a filepath is supplied and the file path leads to the file itself the filename wont be required
 ```
 
 ## Async
