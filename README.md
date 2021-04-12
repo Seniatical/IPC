@@ -8,6 +8,16 @@ from IPC import AppClient
 
 client = AppClient('host', port, 'secret-key')
 
+## Manually add an event to your servers cache
+client.dispatch(
+    methods = ['GET'],   ## This is the default option so it isn't always required
+    return_value = ## Can be a function or class. Class must be callable else it will raise an error
+                   ## Can also be anything of `str, int, float, dict, set [Might be buggy], tuple, list etc...`
+                   ## Everything thats returned at the end will be casted as a string so it can be encoded - WARNING
+    event_name = 'Something Unique',    ## This is used to find your return value and send it to your web app
+)
+
+
 ## If your using a function
 @client.on_call('event-name')     ## If no name for the even is supplied the function's name becomes the event name
 def my_event(*args, **kwargs):
@@ -31,15 +41,6 @@ def index():
 from IPC import File, AppClient
 
 client = AppClient('host', port, 'secret-key')
-
-## Manually add an event to your servers cache
-client.dispatch(
-    methods = ['GET'],   ## This is the default option so it isn't always required
-    return_value = ## Can be a function or class. Class must be callable else it will raise an error
-                   ## Can also be anything of `str, int, float, dict, set [Might be buggy], tuple, list etc...`
-                   ## Everything thats returned at the end will be casted as a string so it can be encoded - WARNING
-    event_name = 'Something Unique',    ## This is used to find your return value and send it to your web app
-)
 
 @client.on_call('event-name')  
 def my_event(*args, **kwargs):
