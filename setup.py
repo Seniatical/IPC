@@ -9,15 +9,15 @@ classifiers = [
 ]
 
 setup(
-  name='MechaK.py',
+  name='IPC',
   version='0.0.1',
-  description='Offical API Wrapper for the Mecha Karen API',
+  description='A small lightweight module to simulate a Client and Server setup',
   long_description=open('README.md').read(),
   long_description_content_type = "text/markdown",
-  url = "https://github.com/Seniatical/MechaK.py/", 
+  url = "https://github.com/Seniatical/IPC/", 
   project_urls={
-   "Documentation": "https://github.com/Seniatical/MechaK.py/",
-   "Issue tracker": "https://github.com/Seniatical/MechaK.py/issues",
+   "Documentation": "https://github.com/Seniatical/IPC/",
+   "Issues tracker": "https://github.com/Seniatical/IPC/issues",
    },
   author='Seniatical',
   author_email='smelted02@gmail.com',
