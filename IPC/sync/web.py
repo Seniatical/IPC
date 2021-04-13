@@ -11,18 +11,18 @@ class WebClient:
         self.port = port
         self.host = host
         self.key = secret_key
+        self.sock = None
         
         self.packet_transfer_pattern = re.compile(r'FILE?://(?:[a-z]{1, 50})?.+/[0-9].+')
         ## Recognises that a file is about to be transferred
 
+    def get(self, event_name: str, *args, **kwargs):
         try:
             self.sock = socket.create_connection((self.host, self.port))
             print('\033[90m [ + ] Connected to server')
         except Exception as error:
             ## Only ever raised when your app isn't running
             raise ServerNotRunningError() from error
-
-    def get(self, event_name: str, *args, **kwargs):
         ## Used to get a recourse from your application
         ## Allows some extra information to be passed on
         
