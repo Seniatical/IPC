@@ -3,7 +3,7 @@
 ##    AIO_WebClient
 ##)
 
-from .sync import (
+from .Sync import (
     AppClient,
     WebClient,
 )
@@ -11,4 +11,6 @@ from .sync import (
 from .exceptions import (
     ServerStartupError,
     ServerNotRunningError,
+    DuplicateCall,
+    SendingError
 )
