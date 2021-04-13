@@ -5,29 +5,31 @@ from ..exceptions import (ServerStartupError,
                           )
 import json
 import re
+import tqdm
 
 class WebClient:
     def __init__(self, host, port, secret_key = None):
         self.port = port
         self.host = host
         self.key = secret_key
-        self.sock = None
+        self.BUFFER_SIZE = 1024
         
-        self.packet_transfer_pattern = re.compile(r'FILE?://(?:[a-z]{1, 50})?.+/[0-9].+')
+        self.packet_transfer_pattern = re.compile(r'FILE?:\|\|(?:[a-z]{1, 50})?.+\|\|[0-9]+')
         ## Recognises that a file is about to be transferred
 
-    def get(self, event_name: str, *args, **kwargs):
         try:
             self.sock = socket.create_connection((self.host, self.port))
-            print('\033[90m [ + ] Connected to server')
+            print('\x1b[32m [ + ] Connected to server')
         except Exception as error:
             ## Only ever raised when your app isn't running
             raise ServerNotRunningError() from error
+
+    def fetch(self, event_name: str, *args, **kwargs):
         ## Used to get a recourse from your application
         ## Allows some extra information to be passed on
         
         raw_json = {
-            't': 'GET',
+            't': kwargs.get('method') or 'GET',
             'a': str(self.key),
             'e': event_name,
             'args': args,
@@ -44,7 +46,7 @@ class WebClient:
 
         try:
             self.sock.sendall(json.dumps(raw_json).encode('utf-8'))
-            print('\033[90m [ + ] Sent request to server')
+            print('\x1b[32m [ + ] Sent request to server')
         except Exception as error:
             raise SendingError() from error
 
@@ -53,18 +55,56 @@ class WebClient:
             try:
                 data = self.sock.recv(1024).decode()
             except Exception:
-                print('\033[93m [ - ] Target server rejected response')
+                print('\x1b[31m [ - ] Target server rejected response')
                 break
 
             if not data:
-                print('\033[93m [ - ] Rejected response - No data sent with packet')
-                continue
+                print('\x1b[31m [ - ] Rejected response - No data sent with packet')
+                break
                 
-            print('\033[90m [ + ] Accepted connection from {!r}'.format(address))
+            print('\x1b[32m [ + ] Accepted connection from {!r}'.format(address))
 
             if address != (self.host, self.port):
-                print('\033[93m [ - ] Rejected response from {!r} - Incorrect address'.format(address))
-                continue
+                print('\x1b[31m [ - ] Rejected response from {!r} - Incorrect address'.format(address))
+                break
 
-            print('\033[90m [ + ] Recieved response from server')
-            return data
+##            is_file = self.packet_transfer_pattern.match(data)
+##            if is_file:
+##                ## File format should be - FILE:||Filename||number-of-packets
+##                ## Filename can include the directory but the file should be at the end of the directory
+##                
+##                actual_find = is_file.group()
+##                parted = actual_find.split('||')
+##                filename = parted[1]
+##                packets = int(parted[-1])
+##                ## Iterating through packets in a with statement whilst the new file is open should do the trick
+##
+##                print('\x1b[32m [ + ] Preparing to save {!r} with a total of {!r} packets'.format(filename, packets))
+##                bar = tqdm.tqdm(range(packets * self.BUFFER_SIZE), f"Recieving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+##
+##                try:
+##                    recv_packets = []
+##                    while True:
+##                        packet = self.sock.recv(self.BUFFER_SIZE)
+##
+##                        if not packet:
+##                            break
+##                        
+##                        recv_packets.append(packet)
+##
+##                        bar.update(len(packet))
+##
+##                    
+##                except OSError:
+##                    print('\x1b[31m [ - ] Failed to open/write to file - {!r}'.format(error))
+##                    break
+
+## Fixing the section above ^^^^^^
+
+                print(len(set(recv_packets)), len(recv_packets))
+                print('\n\x1b[32m [ + ] Saved file {!r}'.format(filename))
+
+                ## Returns the file object just incase they need it
+                return open(filename, 'r', encoding = 'utf-8')
+            else:
+                return data
