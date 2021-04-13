@@ -3,7 +3,7 @@ A simple program which allows you to interact with a web-server and your applica
 
 As of now only the sync version has been completed\
     - You can send basic strings through the IPC\
-    - Soon to be files | I messed the sending of it up 😢\
+    - Soon to be files | I messed the sending of it up 😢
 
 ## Sync
 ```py
