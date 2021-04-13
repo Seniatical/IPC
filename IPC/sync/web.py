@@ -45,7 +45,13 @@ class WebClient:
         address = (self.host, self.port)
 
         try:
-            self.sock.sendall(json.dumps(raw_json).encode('utf-8'))
+            try:
+                self.sock.sendall(json.dumps(raw_json).encode('utf-8'))
+            except OSError:
+                ## Socket get put down for some reason
+                self.sock = socket.create_connection((self.host, self.port))
+                self.sock.sendall(json.dumps(raw_json).encode('utf-8'))
+                
             print('\x1b[32m [ + ] Sent request to server')
         except Exception as error:
             raise SendingError() from error
@@ -53,7 +59,7 @@ class WebClient:
         while True:
 
             try:
-                data = self.sock.recv(1024).decode()
+                data = self.sock.recv(self.BUFFER_SIZE).decode()
             except Exception:
                 print('\x1b[31m [ - ] Target server rejected response')
                 break
@@ -98,13 +104,16 @@ class WebClient:
 ##                except OSError:
 ##                    print('\x1b[31m [ - ] Failed to open/write to file - {!r}'.format(error))
 ##                    break
+##
+##                print(len(set(recv_packets)), len(recv_packets))
+##                print('\n\x1b[32m [ + ] Saved file {!r}'.format(filename))
+##
+##        
+##
+##                ## Returns the file object just incase they need it
+##                return open(filename, 'r', encoding = 'utf-8')
+##            else:
 
 ## Fixing the section above ^^^^^^
-
-                print(len(set(recv_packets)), len(recv_packets))
-                print('\n\x1b[32m [ + ] Saved file {!r}'.format(filename))
-
-                ## Returns the file object just incase they need it
-                return open(filename, 'r', encoding = 'utf-8')
-            else:
-                return data
+            
+            return data
