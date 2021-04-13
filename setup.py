@@ -23,7 +23,7 @@ setup(
   author_email='smelted02@gmail.com',
   license='Apache', 
   classifiers=classifiers,
-  keywords='Data-Types,Python', 
+  keywords='Networking,Client,Server,Sockets,Python', 
   packages=find_packages(),
   install_requires=['tqdm'] 
 )
