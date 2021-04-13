@@ -8,6 +8,8 @@ client = AppClient('localhost', 5000, 'mysecretkey')
 @client.on_call(event_name='ping')
 def get_ping():
     return 'Called!'
+
+client.start()
     
 ## Web
 from IPC import WebClient
