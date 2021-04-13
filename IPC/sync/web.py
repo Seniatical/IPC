@@ -4,13 +4,16 @@ from ..exceptions import (ServerStartupError,
                           SendingError
                           )
 import json
-
+import re
 
 class WebClient:
     def __init__(self, host, port, secret_key = None):
         self.port = port
         self.host = host
         self.key = secret_key
+        
+        self.packet_transfer_pattern = re.compile(r'FILE?://(?:[a-z]{1, 50})?.+/[0-9].+')
+        ## Recognises that a file is about to be transferred
 
         try:
             self.sock = socket.create_connection((self.host, self.port))
@@ -51,7 +54,7 @@ class WebClient:
                 data = self.sock.recv(1024).decode()
             except Exception:
                 print('\033[93m [ - ] Target server rejected response')
-                continue
+                break
 
             if not data:
                 print('\033[93m [ - ] Rejected response - No data sent with packet')
