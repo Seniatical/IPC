@@ -25,3 +25,6 @@ def index():
     client.get('ping')
     end = perf_counter()
     return 'My Application servers ping is currently - {}ms'.format(round(end - start))
+
+if __name__ == '__main__':
+    app.run()
