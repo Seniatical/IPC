@@ -3,9 +3,11 @@ from ..exceptions import (ServerStartupError,
                           ServerNotRunningError,
                           SendingError
                           )
+from os import remove
 import json
 import re
 import tqdm
+from io import BytesIO
 
 class WebClient:
     def __init__(self, host, port, secret_key = None):
@@ -87,22 +89,29 @@ class WebClient:
                 print('\x1b[32m [ + ] Preparing to save {!r} with a total of {!r} packets'.format(filename, packets))
 
                 try:
-                    file_data = ''
+                    with open(filename, 'wb') as f:
 
-                    while True:
-                        file = self.sock.recv(self.BUFFER_SIZE).decode('utf-8')
+                        while True:
+                            file = self.sock.recv(self.BUFFER_SIZE)
 
-                        if not file:
-                            break
-                        file_data += file
-                        
-                    with open(filename, 'w') as f:
-                        f.write(file_data)
-                except OSError:
+                            if not file:
+                                break
+                            f.write(file)
+
+                    file_data = open(filename, 'rb').read()
+            
+                    if not file_data:
+                        remove(filename)
+                        print('\x1b[31m [ - ] Failed to transfer file')
+                        break
+
+                except OSError as error:
                     print('\x1b[31m [ - ] Failed to open/write to file - {!r}'.format(error))
                     break
 
                 print('\n\x1b[32m [ + ] Saved file {!r}'.format(filename))
+
+                return BytesIO(file_data)
 
         
 

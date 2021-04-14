@@ -5,7 +5,7 @@ from ..exceptions import (ServerStartupError,
                           SendingError
                           )
 from ..Models import (
-    File
+    File, split
     )
 import sys
 import json
@@ -152,11 +152,14 @@ class AppClient:
                 buffers, remain = divmod(filesize, self.BUFFER_SIZE)
                 if remain != 0:
                     buffers += 1
+                buffers = 1 if buffers == 0 else buffers
                 
                 conn.sendall('FILE:||{}||{}'.format(to_return.filename, buffers).encode('utf-8'))
                 print('\x1b[32m [ + ] Attempting to send the file {!r}'.format(to_return.filename))
 
-                conn.sendfile(to_return.raw)
+                packets = split(to_return.raw, self.BUFFER_SIZE)
+                for packet in packets:
+                    conn.sendall(packet)
 
                 print('\x1b[32m [ + ] Sent {!r} using {!r} packets'.format(to_return.filename, buffers))
 
