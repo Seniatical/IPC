@@ -48,7 +48,7 @@ class AppClient:
         server = self.server
         if not server:
             raise ServerNotRunningError('Server is not running')
-        server.close()
+        server.shutdown(socket.SHUT_RDWR)
         
         print('\x1b[31m [ - ] Killed Running Process')
 
