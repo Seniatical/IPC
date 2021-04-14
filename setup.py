@@ -20,7 +20,6 @@ setup(
    "Issues tracker": "https://github.com/Seniatical/IPC/issues",
    },
   author='Seniatical',
-  author_email='smelted02@gmail.com',
   license='Apache', 
   classifiers=classifiers,
   keywords='Networking,Client,Server,Sockets,Python', 
