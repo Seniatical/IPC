@@ -201,8 +201,8 @@ class AppClient:
     def dispatch(self, event_name: str, return_value, methods = ['GET']) -> None:
         ## Alternative to the decorator
         
-        if self.calls.get(event):
-            raise DuplicateCall('Event {!r} already exists, rename it to something unique'.format(event))
+        if self.calls.get(event_name):
+            raise DuplicateCall('Event {!r} already exists, rename it to something unique'.format(event_name))
 
         if type(methods) != list:
             raise TypeError('Methods must be a list not {!r}'.format(methods.__class__.__name__))
@@ -210,6 +210,6 @@ class AppClient:
         if any([i for i in methods if i not in self.__allowed_methods]):
             raise ValueError('Invalid Method(s) in methods list. Allowed Methods: {!r}'.format(self.__allowed_methods))
 
-        if inspect.isawaitable(func):
+        if inspect.isawaitable(return_value):
             raise TypeError('Event to call cannot be a coroutine, use the async client instead of this one')
-        self.calls.update({event: [func, methods]})
+        self.calls.update({event: [return_value, methods]})
