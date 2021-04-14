@@ -29,9 +29,12 @@ class WebClient:
     def fetch(self, event_name: str, *args, **kwargs):
         ## Used to get a recourse from your application
         ## Allows some extra information to be passed on
+        method = kwargs.get('method')
+        if method:
+          kwargs.pop('method')
         
         raw_json = {
-            't': kwargs.get('method') or 'GET',
+            't': method or 'GET',
             'a': str(self.key),
             'e': event_name,
             'args': args,
