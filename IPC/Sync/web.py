@@ -120,9 +120,5 @@ class WebClient:
 
                 return BytesIO(file_data)
 
-        
-
-                ## Returns the file object just incase they need it
-                return open(filename, 'r', encoding = 'utf-8')
             else:
                 return data
