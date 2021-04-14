@@ -30,8 +30,12 @@ class WebClient:
         ## Used to get a recourse from your application
         ## Allows some extra information to be passed on
         method = kwargs.get('method')
+        
+        if type(method) != str:
+            raise TypeError('Request method must be a string not {!r}'.format(method.__class__.__name__))
+        
         if method:
-          kwargs.pop('method')
+            kwargs.pop('method')
         
         raw_json = {
             't': method or 'GET',
