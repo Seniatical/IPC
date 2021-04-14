@@ -1,9 +1,12 @@
 # IPC
 A simple program which allows you to interact with a web-server and your application
 
-As of now only the sync version has been completed\
-    - You can send basic strings through the IPC\
-    - Soon to be files | I messed the sending of it up 😢
+## Version Updates:
+- Sending files is now possible\
+- Buffer size is now configurble (Make sure it is the same in both clients to prevent weird errors)\
+- Fix kwargs and configurable fetch requests with WebClient\
+- Working on Async Clients then a nicer one for `discord.py`.\
+
 
 ## Sync
 ```py
