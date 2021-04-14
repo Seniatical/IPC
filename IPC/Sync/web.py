@@ -31,7 +31,7 @@ class WebClient:
         ## Allows some extra information to be passed on
         method = kwargs.get('method')
         
-        if type(method) != str:
+        if type(method) != str and method != None:
             raise TypeError('Request method must be a string not {!r}'.format(method.__class__.__name__))
         
         if method:
