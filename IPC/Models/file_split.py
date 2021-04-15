@@ -14,7 +14,7 @@ def split(file: Union[bytes, str, File, FileIO, BytesIO], buffer_size: int) -> l
         try:
             file = FileIO(file)
         except OSError:
-            file = BytesIO(file.encode('utf-8'))
+            file = BytesIO(file.encode('utf-8'), errors='ignore')
 
     if isinstance(file, File):
         file = file.raw
