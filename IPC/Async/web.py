@@ -1,0 +1,2 @@
+class AsyncWebClient:
+    pass
