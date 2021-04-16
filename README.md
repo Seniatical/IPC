@@ -64,9 +64,9 @@ def my_event(*args, **kwargs):
 ## Async
 
 ```py
-from IPC import AIO_AppClient
+from IPC import AsyncAppClient
 
-client = AIO_AppClient('host', port, 'secret-key')
+client = AsyncAppClient('host', port, 'secret-key')
 
 async def dispatch():
     await client.dispatch(
@@ -77,9 +77,23 @@ async def dispatch():
 async def my_event(*args, **kwargs):
     return args
 
+client.start()
+
 ## Your web app would be the same as before except with async and await infront of each function
+## Your import would be
+from IPC import AsyncWebClient
 ```
 
-## Using Discord.py?
-For your bot it is recomended you use the async module
-And for your web app you could use any of the clients
+## FAQ:
+
+Q: Can I increase the buffer size?
+A: Yes you can, as shown below
+```py
+## Example
+import IPC
+
+client = IPC.AppClient(*args, **kwargs)
+client.BUFFER_SIZE = your-buffer-size ## Default is set to 1024
+                                      ## Setting it to None or 0 on the Async client would mean there is a 64 KiB limit
+                                      ## Not recomended ^
+```
