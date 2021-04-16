@@ -11,12 +11,9 @@ import sys
 import json
 import inspect
 
-import tqdm
-## For the progress bar
-
 class AppClient:
 
-    def __init__(self, host, port, secret_key = None, close_on_rejection = False):
+    def __init__(self, host, port, secret_key = None, close_on_rejection = False, close_on_completion = True):
         ## If your secret_key is None anybody can make a request to the running server without any auth
         ## close_on_rejection shuts down the connection if any of requests made are invalid
         ## I will add a configurable option soon
@@ -28,12 +25,13 @@ class AppClient:
         self.as_tuple = (host, port)
         self.key = str(secret_key)
         self.close_on_rejection = close_on_rejection
+        self.close_on_completion = close_on_completion
         self.BUFFER_SIZE = 1024
 
         self.calls = {}
         self.__allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 
-        print('\x1b[32m [ + ] Server IP {!r} | Port {!r}'.format(self.host, self.port))
+        print('\x1b[32m [ + ] Server IP {!r} | Port {!r} - Sync Client'.format(self.host, self.port))
 
     @property
     def get_info(self):
@@ -166,9 +164,12 @@ class AppClient:
             else:
                 conn.sendall(str(to_return).encode('utf-8'))
             print('\x1b[32m [ + ] Returned request result to {!r}'.format(address))
-            
-            conn.close()
-            print('\x1b[32m [ + ] Closed connection with {!r}'.format(address))
+
+            if self.close_on_completion:
+                conn.close()
+                print('\x1b[32m [ + ] Closed connection with {!r}'.format(address))
+            else:
+                print('\x1b[32m [ + ] Connection still open with {!r}'.format(address))
             
         return self.kill
 
@@ -201,8 +202,8 @@ class AppClient:
     def dispatch(self, event_name: str, return_value, methods = ['GET']) -> None:
         ## Alternative to the decorator
         
-        if self.calls.get(event_name):
-            raise DuplicateCall('Event {!r} already exists, rename it to something unique'.format(event_name))
+        if self.calls.get(event):
+            raise DuplicateCall('Event {!r} already exists, rename it to something unique'.format(event))
 
         if type(methods) != list:
             raise TypeError('Methods must be a list not {!r}'.format(methods.__class__.__name__))
@@ -210,6 +211,6 @@ class AppClient:
         if any([i for i in methods if i not in self.__allowed_methods]):
             raise ValueError('Invalid Method(s) in methods list. Allowed Methods: {!r}'.format(self.__allowed_methods))
 
-        if inspect.isawaitable(return_value):
+        if inspect.isawaitable(func):
             raise TypeError('Event to call cannot be a coroutine, use the async client instead of this one')
-        self.calls.update({event: [return_value, methods]})
+        self.calls.update({event: [func, methods]})
