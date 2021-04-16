@@ -20,7 +20,7 @@ setup(
    "Issues tracker": "https://github.com/Seniatical/IPC/issues",
    },
   author='Seniatical',
-  license='Apache', 
+  license='MIT', 
   classifiers=classifiers,
   keywords='Networking,Client,Server,Sockets,Python', 
   packages=find_packages(),
