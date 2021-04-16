@@ -86,7 +86,7 @@ from IPC import AsyncWebClient
 
 ## FAQ:
 
-Q: Can I increase the buffer size?
+Q: Can I increase the buffer size?\
 A: Yes you can, as shown below
 ```py
 ## Example
