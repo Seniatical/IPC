@@ -1,7 +1,11 @@
-##from .aio import (
-##    AIO_AppClient,
-##    AIO_WebClient
-##)
+__author__ = 'Seniatical'
+__version__ = '0.0.7'
+__license__  = 'MIT License'
+
+from .Async import (
+    AsyncAppClient,
+    AsyncWebClient,
+    )
 
 from .Sync import (
     AppClient,
@@ -14,3 +18,12 @@ from .exceptions import (
     DuplicateCall,
     SendingError
 )
+
+from .Models import (
+    File,
+    split as Split,
+    )
+
+from . import (
+    Async, Sync, Models
+    )
