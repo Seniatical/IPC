@@ -2,11 +2,9 @@
 A simple program which allows you to interact with a web-server and your application
 
 ## Version Updates:
-- Sending files is now possible
-- Buffer size is now configurble (Make sure it is the same in both clients to prevent weird errors)
-- Fix kwargs and configurable fetch requests with WebClient
-- Working on Async Clients then a nicer one for `discord.py`.
-
+- Sending files is now possible (SYNC ONLY)
+- Async client is here | No file sending as of now
+- May add a category offering SSL soon
 
 ## Sync
 ```py
