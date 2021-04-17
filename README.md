@@ -1,6 +1,9 @@
 # IPC
 A small lightweight networking module
 
+Want to use this module?\
+`pip install -U git+https://github.com/Seniatical/IPC`
+
 ## Version Updates:
 - Sending files is now possible (SYNC ONLY)
 - Async client is here | No file sending as of now
