@@ -1,5 +1,5 @@
 # IPC
-A simple program which allows you to interact with a web-server and your application
+A small lightweight networking module
 
 ## Version Updates:
 - Sending files is now possible (SYNC ONLY)
