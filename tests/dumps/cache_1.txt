@@ -1,0 +1,4 @@
+[32m [ + ] Server IP 'localhost' | Port 5000 - Async Client
+[32m [ + ] Server is now running
+[32m [ + ] Recieved request from ('::1', 6094)
+[32m [ + ] Sent result back to ('::1', 6094)
