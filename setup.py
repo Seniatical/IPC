@@ -11,12 +11,12 @@ classifiers = [
 setup(
   name='IPC',
   version='0.0.1',
-  description='A small lightweight module to simulate a Client and Server setup',
+  description='A small lightweight networking module',
   long_description=open('README.md').read(),
   long_description_content_type = "text/markdown",
   url = "https://github.com/Seniatical/IPC/", 
   project_urls={
-   "Documentation": "https://github.com/Seniatical/IPC/",
+   "Documentation": "https://github.com/Seniatical/IPC/docs/docs.md",
    "Issues tracker": "https://github.com/Seniatical/IPC/issues",
    },
   author='Seniatical',
