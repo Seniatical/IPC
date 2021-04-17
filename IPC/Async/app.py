@@ -1,7 +1,3 @@
-from json import (
-    loads, dumps
-    )
-
 from asyncio import (
     get_running_loop,
     new_event_loop,
@@ -10,21 +6,26 @@ from asyncio import (
 
 from ..exceptions import (
     ServerStartupError,
-    DuplicateCall
+    DuplicateCall,
+    ServerNotRunningError
     )
 
-from inspect import iscoroutine
+import inspect
+import json
 
 class AsyncAppClient:
-    __slots__ = ('host', 'port', 'secret_key', 'loop', '__allowed_methods', '__calls', 'tasks')
-    
     def __init__(self, host, port, **kwargs):
         self.host = host
         self.port = port
         self.secret_key = kwargs.get('secret_key') or kwargs.get('secretkey')
-        self.__allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-        self.__calls = {}
-        self.tasks = {}
+        self.allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+        self.calls = {}
+        self.BUFFER_SIZE = 1024
+        self.server = None
+        self.close_on_failure = kwargs.get('close_on_failure')
+        self.close_on_completion = kwargs.get('close_on_completion')
+
+        print('\x1b[32m [ + ] Server IP {!r} | Port {!r} - Async Client'.format(self.host, self.port))
 
         try:
             self.loop = kwargs.get('loop') or get_running_loop()
@@ -34,39 +35,150 @@ class AsyncAppClient:
         if self.loop.is_closed():
             raise RuntimeError('Event loop must be running')
 
-    def on_call(self, event_name: str = None, methods = ['GET']):
+    async def kill(self):
+        if not self.server:
+            raise ServerNotRunningError('Server is not running')
+        print('\x1b[31m [ - ] Server shutting down')
+
+        try:
+            serv = await self.server
+            self.server = serv
+        except Exception:
+            pass
+
+        server.close()
+        await server.wait_closed()
+
+        print('\x1b[31m [ - ] Server has been closed and is no longer accepting requests')
+
+    def on_call(self, event_name = None, methods = ['GET']):
 
         def register(func):
-            if not event_name:
-                event_name = func.__name__
+            event = event_name or func.__name__
                 
-            if self.__calls.get(event_name):
-                raise DuplicateCall('Event {!r} already exists, rename it to something unique'.format(event_name))
+            if self.calls.get(event):
+                raise DuplicateCall('Event {!r} already exists, rename it to something unique'.format(event))
 
-            if any([method for method in methods if method not in self.__allowed_methods]):
-                raise ValueError('Invalid Method(s) in methods list. Allowed Methods: {!r}'.format(self.__allowed_methods))
+            if type(methods) not in [tuple, list]:
+                raise TypeError('Methods must be a list/tuple not {!r}'.format(methods.__class__.__name__))
 
-            if not iscoroutine(func):
-                raise TypeError('Function to call must a coroutine')
+            if any([i for i in methods if i not in self.allowed_methods]):
+                raise ValueError('Invalid Method(s) in methods list. Allowed Methods: {!r}'.format(self.allowed_methods))
 
-            self.__calls.update({event_name: [func, methods]})
-            
+            if not inspect.iscoroutinefunction(func):
+                raise TypeError('Event to call must be a coroutine when using this client')
+            self.calls.update({event: [func, methods]})
+
         return register
 
     async def dispatch(self, event_name: str, return_value, methods = ['GET']) -> None:
-        if self.__calls.get(event_name):
+        if self.calls.get(event_name):
             raise DuplicateCall('Event {!r} already exists, rename it to something unique'.format(event_name))
 
-        if any([method for method in methods if method not in self.__allowed_methods]):
-            raise ValueError('Invalid Method(s) in methods list. Allowed Methods: {!r}'.format(self.__allowed_methods))
+        if any([method for method in methods if method not in self.allowed_methods]):
+            raise ValueError('Invalid Method(s) in methods list. Allowed Methods: {!r}'.format(self.allowed_methods))
 
-        if not iscoroutine(return_value):
+        if not inspect.iscoroutinefunction(return_value):
             raise TypeError('Function to call must a coroutine')
 
-        self.__calls.update({event_name: [func, methods]})
+        self.calls.update({event_name: [func, methods]})
+
+    async def sockets(self):
+        try:
+            serv = await self.server
+            self.server = serv
+        except Exception:
+            pass
+        
+        return self.server.sockets
+
+    async def handle_response(self, reader, writer):
+        if not writer or not reader:
+            return
+        
+        while True:
+            data = await reader.read(1024)
+
+            if not data:
+                return
+
+            sock = writer.get_extra_info('socket')
+            address = sock.getpeername()[:2]
+            ## IPV4/IPV6 is not supported on some OS's so it returns ::1
+
+            print('\x1b[32m [ + ] Recieved request from {!r}'.format(address))
+
+            try:
+                packet = json.loads(data.decode('utf-8', errors='ignore'))
+            except Exception as error:
+                print('\x1b[31m [ - ] Rejected request from {!r} - Badly formed packet'.format(address))
+                if self.close_on_failure:
+                    return await writer.close()
+                return
+
+            event = packet.get('e') or packet.get('event')
+            method = packet.get('t') or packet.get('type') or packet.get('method') or packet.get('m')
+            
+            if any([i for i in [event] if not i]):
+                print('\x1b[31m [ - ] Rejected request from {!r} - Badly formed packet'.format(address))
+                if self.close_on_failure:
+                    return await writer.close()
+                return
+
+            auth = packet.get('a') or packet.get('auth') or packet.get('authorization')
+
+            if str(auth) != str(self.secret_key):
+                print('\x1b[31m [ - ] Rejected request from {!r} - Invalid authorization'.format(address))
+                if self.close_on_failure:
+                    return await writer.close()
+                return
+
+            event = self.calls.get(event)
+
+            if not event:
+                print('\x1b[31m [ - ] Rejected request from {!r} - Event request doesn\'t exist'.format(address))
+                if self.close_on_failure:
+                    return await writer.close()
+                return
+
+            coro, methods = event
+
+            if method not in methods:
+                print('\x1b[31m [ - ] Rejected request from {!r} - Method {!r} is not allowed'.format(address, method))
+                if self.close_on_failure:
+                    return await writer.close()
+                return
+
+            if packet.get('kwargs') and packet.get('args'):
+                res = await coro.__call__(*args, **kwargs)
+            elif packet.get('kwargs'):
+                res = await coro.__call__(**kwargs)
+            elif packet.get('args'):
+                res = await coro.__call__(args)
+            else:
+                res = await coro.__call__()
+
+            as_string = str(res)
+
+            try:
+                await writer.write((as_string[:self.BUFFER_SIZE]).encode('utf-8', errors='ignore'))
+            except TypeError:
+                pass
+            await writer.drain()
+
+            print('\x1b[32m [ + ] Sent result back to {!r}'.format(address))
+            
+            break
 
     def start(self):
-        server = start_server(handle_connection, self.host, self.port, loop=self.loop)
+        
+        server = start_server(self.handle_response, self.host, self.port, loop=self.loop)
+        self.server = server
+        
         self.loop.run_until_complete(server)
+        print('\x1b[32m [ + ] Server is now running')
 
+        if not self.loop.is_running():
+            self.loop.run_forever()     ## Wouldn't allow any requests to pass without this
+        print('\x1b[32m [ + ] Server is now accepting requests')
         
