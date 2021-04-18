@@ -24,14 +24,14 @@ SOFTWARE.
 
 __author__ = 'Seniatical'
 __version__ = '0.0.7'
-__license__  = 'MIT License'
+__license__ = 'MIT License'
 
-from .Async import (
+from .Servers.Async import (
     AsyncAppClient,
     AsyncWebClient,
-    )
+)
 
-from .Sync import (
+from .Servers.Sync import (
     AppClient,
     WebClient,
 )
@@ -45,9 +45,14 @@ from .exceptions import (
 
 from .Models import (
     File,
-    split as Split,
-    )
+    split,
+    split as Split
+)
 
 from . import (
-    Async, Sync, Models
-    )
+    Models, Servers
+)
+
+from .Servers import (
+    Sync, Async
+)
