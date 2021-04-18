@@ -24,5 +24,5 @@ setup(
   classifiers=classifiers,
   keywords='Networking,Client,Server,Sockets,Python', 
   packages=find_packages(),
-  install_requires=['click'] 
+  install_requires=['click', 'aiofiles'] 
 )
