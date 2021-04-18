@@ -10,7 +10,7 @@ classifiers = [
 
 setup(
   name='IPC',
-  version='0.0.1',
+  version='0.0.7',
   description='A small lightweight networking module',
   long_description=open('README.md').read(),
   long_description_content_type = "text/markdown",
