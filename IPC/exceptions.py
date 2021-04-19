@@ -52,7 +52,7 @@ class DuplicateCall(Exception):
     it will raise this error
     """
 
-def SendingError(Exception):
+class SendingError(Exception):
     r"""
     Raised when the web/app cant send a packet
 
