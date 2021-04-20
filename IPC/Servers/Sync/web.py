@@ -123,6 +123,9 @@ class WebClient:
 
                 path = path or filename
 
+                if path != filename:
+                    path += f'/{filename}'
+
                 print('\x1b[32m [ + ] Preparing to save {!r} with a total of {!r} packets'.format(filename, packets))
 
                 try:
