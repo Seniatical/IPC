@@ -64,6 +64,10 @@ class AsyncWebClient:
         if method:
             kwargs.pop('method')
 
+        path = kwargs.get('path')
+        if method:
+            kwargs.pop('path')
+
             if method not in self.allowed:
                 raise TypeError(
                     'Method {!r} is not recognised; use one of {!r}'.format(method.__class__.__name__, self.allowed))
@@ -108,10 +112,12 @@ class AsyncWebClient:
                 filename = parted[1]
                 packets = int(parted[-1])
 
+                path = path or filename
+
                 print('\x1b[32m [ + ] Preparing to save {!r} with a total of {!r} packets'.format(filename, packets))
 
                 try:
-                    async with open(filename, 'wb') as f:
+                    async with open(path, 'wb') as f:
 
                         while True:
 
@@ -125,10 +131,8 @@ class AsyncWebClient:
 
                             await f.write(raw_data)
 
-                    async with open(filename, 'rb') as f:
+                    async with open(path, 'rb') as f:
                         file_data = await f.read()
-
-                    print(file_data)
 
                     if not file_data:
                         remove(filename)

@@ -61,6 +61,10 @@ class WebClient:
         if method:
             kwargs.pop('method')
 
+        path = kwargs.get('path')
+        if path:
+            kwargs.pop('path')
+
         raw_json = {
             't': method or 'GET',
             'a': str(self.key),
@@ -117,10 +121,12 @@ class WebClient:
                 filename = parted[1]
                 packets = int(parted[-1])
 
+                path = path or filename
+
                 print('\x1b[32m [ + ] Preparing to save {!r} with a total of {!r} packets'.format(filename, packets))
 
                 try:
-                    with open(filename, 'wb') as f:
+                    with open(path, 'wb') as f:
 
                         while True:
                             file = self.sock.recv(self.BUFFER_SIZE)
@@ -129,7 +135,7 @@ class WebClient:
                                 break
                             f.write(file)
 
-                    file_data = open(filename, 'rb').read()
+                    file_data = open(path, 'rb').read()
 
                     if not file_data:
                         remove(filename)
