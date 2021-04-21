@@ -8,3 +8,7 @@ Contents
 
 - :ref:`App & Web Clients`
 - :ref:`Utils & Models`
+
+
+.. sidebar:: App & Web Clients
+    :subtitle: Server/Client Setup
