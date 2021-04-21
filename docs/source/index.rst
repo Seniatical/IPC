@@ -4,4 +4,4 @@ Welcome - IPC's Documentation
 Contents
 ########
 
-- `:ref:App & Web Clients`
+- :ref:`App & Web Clients`
