@@ -101,7 +101,7 @@ class AppClient:
 
             print('\x1b[32m [ + ] Accepted connection from {!r}'.format(address))
 
-            data = conn.recv(1024).decode()
+            data = conn.recv(self.BUFFER_SIZE).decode()
 
             if not data:
                 print('\x1b[31m [ - ] Rejected Request from {!r} - No Data Supplied'.format(address))
