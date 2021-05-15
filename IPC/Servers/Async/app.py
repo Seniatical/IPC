@@ -224,7 +224,7 @@ class AsyncAppClient:
         server = start_server(self.handle_response, self.host, self.port, loop=self.loop)
         self.server = server
 
-        self.loop.run_until_complete(server)
+        self.loop.create_task(server)
         print('\x1b[32m [ + ] Server is now running')
 
         if not self.loop.is_running():
