@@ -208,7 +208,7 @@ class AsyncAppClient:
             break
             
         if self.close_on_completion:
-            print('\x1b[32m [ + ] Closed connection with {!r} using {!r} packets'.format(address, buffers))
+            print('\x1b[32m [ + ] Closed connection with {!r}'.format(address))
             return await writer.close()
         return
 
