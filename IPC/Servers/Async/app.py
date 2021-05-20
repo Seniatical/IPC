@@ -101,7 +101,7 @@ class AsyncAppClient:
             data = await reader.read(1024)
 
             if not data:
-                return
+                continue
 
             sock = writer.get_extra_info('socket')
             address = sock.getsockname()
