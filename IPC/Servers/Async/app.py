@@ -28,8 +28,8 @@ class AsyncAppClient:
         self.calls = {}
         self.BUFFER_SIZE = 1024
         self.server = None
-        self.close_on_failure = kwargs.get('close_on_failure')
-        self.close_on_completion = kwargs.get('close_on_completion')
+        self.close_on_failure = kwargs.get('close_on_failure') or True
+        self.close_on_completion = kwargs.get('close_on_completion') or True
 
         print('\x1b[32m [ + ] Server IP {!r} | Port {!r} - Async Client'.format(self.host, self.port))
 
@@ -45,12 +45,6 @@ class AsyncAppClient:
         if not self.server:
             raise ServerNotRunningError('Server is not running')
         print('\x1b[31m [ - ] Server shutting down')
-
-        try:
-            serv = await self.server
-            self.server = serv
-        except Exception:
-            pass
 
         server.close()
         await server.wait_closed()
@@ -97,12 +91,6 @@ class AsyncAppClient:
         self.calls.update({event_name: [func, methods]})
 
     async def sockets(self):
-        try:
-            serv = await self.server
-            self.server = serv
-        except Exception:
-            pass
-
         return self.server.sockets
 
     async def handle_response(self, reader, writer):
@@ -218,6 +206,11 @@ class AsyncAppClient:
             print('\x1b[32m [ + ] Sent result back to {!r}'.format(address))
 
             break
+            
+        if self.close_on_completion:
+            print('\x1b[32m [ + ] Closed connection with {!r} using {!r} packets'.format(address, buffers))
+            return await writer.close()
+        return
 
     def start(self):
 
