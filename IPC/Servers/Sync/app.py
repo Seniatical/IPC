@@ -232,6 +232,9 @@ class AppClient:
     def dispatch(self, event_name: str, return_value, methods=None) -> None:
         ## Alternative to the decorator
 
+        if not callable(return_value):
+          return_value = lambda: str(return_value)
+        
         if methods is None:
             methods = ['GET']
 
@@ -244,6 +247,6 @@ class AppClient:
         if any([i for i in methods if i not in self.__allowed_methods]):
             raise ValueError('Invalid Method(s) in methods list. Allowed Methods: {!r}'.format(self.__allowed_methods))
 
-        if inspect.isawaitable(func):
+        if inspect.isawaitable(return_value):
             raise TypeError('Event to call cannot be a coroutine, use the async client instead of this one')
         self.calls.update({event_name: [return_value, methods]})
